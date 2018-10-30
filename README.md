@@ -3,7 +3,6 @@ docker-ubuntu-vnc-desktop
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/dorowu/ubuntu-desktop-lxde-vnc.svg)](https://hub.docker.com/r/dorowu/ubuntu-desktop-lxde-vnc/)
 [![Docker Stars](https://img.shields.io/docker/stars/dorowu/ubuntu-desktop-lxde-vnc.svg)](https://hub.docker.com/r/dorowu/ubuntu-desktop-lxde-vnc/)
-<a href="https://ko-fi.com/dorowu" target="_blank"><img src="https://az743702.vo.msecnd.net/cdn/kofi2.png" width="142" height="36"></a>
 
 Docker image to provide HTML5 VNC interface to access Ubuntu 16.04 LXDE desktop environment.
 
@@ -20,6 +19,14 @@ Browse http://127.0.0.1:6080/
 
 <img src="https://raw.github.com/fcwu/docker-ubuntu-vnc-desktop/master/screenshots/lxde.png?v1" width=700/>
 
+**Ubuntu Version**
+
+Choose your favorite Ubuntu version with [tags](https://hub.docker.com/r/dorowu/ubuntu-desktop-lxde-vnc/tags/)
+
+- bionic: Ubuntu 18.04 (latest)
+- bionic-lxqt: Ubuntu 18.04 LXQt
+- xenial: Ubuntu 16.04
+- trusty: Ubuntu 14.04
 
 VNC Viewer
 ------------------
@@ -111,7 +118,8 @@ Troubleshooting and FAQ
 ==================
 
 1. boot2docker connection issue, https://github.com/fcwu/docker-ubuntu-vnc-desktop/issues/2
-
+2. Multi-language supports, https://github.com/fcwu/docker-ubuntu-vnc-desktop/issues/80
+3. Autostart, https://github.com/fcwu/docker-ubuntu-vnc-desktop/issues/85
 
 License
 ==================
