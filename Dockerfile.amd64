@@ -84,10 +84,25 @@ RUN cd /src/web \
 FROM system
 LABEL maintainer="fcwu.tw@gmail.com"
 
+
+
+# install xrdp
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends --allow-unauthenticated  \
+        xrdp \
+        xorgxrdp \
+    && apt-get autoclean \
+    && apt-get autoremove \
+    && rm -rf /var/lib/apt/lists/*
+
+
+
 COPY --from=builder /src/web/dist/ /usr/local/lib/web/frontend/
 COPY image /
 
 EXPOSE 80
+EXPOSE 3389
+
 WORKDIR /root
 ENV HOME=/home/ubuntu \
     SHELL=/bin/bash

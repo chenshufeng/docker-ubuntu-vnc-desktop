@@ -1,5 +1,20 @@
 #!/bin/bash
 
+
+# do for xrdp config
+sed -i '/TerminalServerUsers/d' /etc/xrdp/sesman.ini
+sed -i '/TerminalServerAdmins/d' /etc/xrdp/sesman.ini
+xrdp-keygen xrdp auto
+mkdir -p /var/run/xrdp
+chmod 2775 /var/run/xrdp
+mkdir -p /var/run/xrdp/sockdir
+chmod 3777 /var/run/xrdp/sockdir
+
+# set root password for xrdp user login
+echo "root:123456" | chpasswd
+
+
+
 if [ -n "$VNC_PASSWORD" ]; then
     echo -n "$VNC_PASSWORD" > /.password1
     x11vnc -storepasswd $(cat /.password1) /.password2
