@@ -14,6 +14,11 @@ chmod 3777 /var/run/xrdp/sockdir
 echo "root:123456" | chpasswd
 
 
+# some settings
+alias ll="ls -la"
+
+
+
 
 if [ -n "$VNC_PASSWORD" ]; then
     echo -n "$VNC_PASSWORD" > /.password1
@@ -73,5 +78,13 @@ chmod +x /usr/local/lib/web/frontend/static/websockify/run
 # clearup
 PASSWORD=
 HTTP_PASSWORD=
+
+
+
+
+# start dbus service
+/etc/init.d/dbus start
+
+
 
 exec /bin/tini -- /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf

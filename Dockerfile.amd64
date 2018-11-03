@@ -96,6 +96,22 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 
+# install google chrome
+
+ARG CHROME_VERSION="google-chrome-stable"
+RUN  apt update && apt-get install -y --no-install-recommends --allow-unauthenticated  gpg-agent \
+  && curl https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+  && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
+  && apt-get update -qqy \
+  && apt-get install -y --no-install-recommends --allow-unauthenticated \
+    ${CHROME_VERSION:-google-chrome-stable} \
+  && rm /etc/apt/sources.list.d/google-chrome.list \
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
+
+
+
+
 
 COPY --from=builder /src/web/dist/ /usr/local/lib/web/frontend/
 COPY image /
@@ -104,7 +120,7 @@ EXPOSE 80
 EXPOSE 3389
 
 WORKDIR /root
-ENV HOME=/home/ubuntu \
+ENV HOME=/root \
     SHELL=/bin/bash
 HEALTHCHECK --interval=30s --timeout=5s CMD curl --fail http://127.0.0.1:6079/api/health
 ENTRYPOINT ["/startup.sh"]
