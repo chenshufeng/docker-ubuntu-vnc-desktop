@@ -133,7 +133,7 @@ RUN cd /tmp \
     && curl -o ideaIC.tar.gz ${IDEA_DOWNLOAD_URL} \
     && mkdir /usr/local/ideaIC && tar -zxvf ideaIC.tar.gz -C /usr/local/ideaIC --strip-components 1 \
     && cd /usr/local/ideaIC/ \
-    && rm -rf plugins/android plugins/Groovy \
+   # && rm -rf plugins/android plugins/Groovy \
     && cd /tmp && curl -o openjdk.tar.gz ${JDK_DOWNLOAD_URL} \
     && mkdir /usr/local/jdk && tar -zxvf openjdk.tar.gz -C /usr/local/jdk  --strip-components 1   \
     && echo 'export JAVA_HOME=/usr/local/jdk' >> /etc/profile  \
