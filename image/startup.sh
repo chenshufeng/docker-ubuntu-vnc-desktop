@@ -85,6 +85,9 @@ HTTP_PASSWORD=
 # start dbus service
 /etc/init.d/dbus start
 
+# start ssh service
+/etc/init.d/ssh start
+
 
 
 exec /bin/tini -- /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf

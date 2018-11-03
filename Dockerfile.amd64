@@ -143,7 +143,10 @@ RUN cd /tmp \
 
 
 # time zone settings
-RUN apt update && apt-get install -y --no-install-recommends --allow-unauthenticated tzdata \
+# openssh-server
+RUN apt update && apt-get install -y --no-install-recommends --allow-unauthenticated \
+    tzdata \
+    openssh-server \
     && ln -fs /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && dpkg-reconfigure -f noninteractive tzdata \
     && apt -qq clean && rm -rf /var/lib/apt/lists/*  /var/cache/apt/*
 
