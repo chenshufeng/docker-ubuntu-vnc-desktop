@@ -109,6 +109,44 @@ RUN  apt update && apt-get install -y --no-install-recommends --allow-unauthenti
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 
+# install openbox window manager
+
+RUN  apt update && apt-get install -y --no-install-recommends --allow-unauthenticated \
+    obconf \
+    && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
+
+
+
+
+# install intellij idea ,java, git
+
+# real url: https://download.jetbrains.8686c.com/idea/ideaIC-2018.2.5.tar.gz
+ARG IDEA_DOWNLOAD_URL=http://192.168.1.101:8080/ideaIC-2018.2.5.tar.gz
+
+# real url: https://download.java.net/java/GA/jdk11/13/GPL/openjdk-11.0.1_linux-x64_bin.tar.gz
+# jdk8 : https://download.java.net/java/jdk8u192/archive/b04/binaries/jdk-8u192-ea-bin-b04-linux-arm64-vfp-hflt-01_aug_2018.tar.gz
+ARG JDK_DOWNLOAD_URL=http://192.168.1.101:8080/openjdk-11.0.1_linux-x64_bin.tar.gz
+
+
+RUN cd /tmp \
+    && curl -o ideaIC.tar.gz ${IDEA_DOWNLOAD_URL} \
+    && mkdir /usr/local/ideaIC && tar -zxvf ideaIC.tar.gz -C /usr/local/ideaIC --strip-components 1 \
+    && cd /usr/local/ideaIC/ \
+    && rm -rf plugins/android plugins/Groovy \
+    && cd /tmp && curl -o openjdk.tar.gz ${JDK_DOWNLOAD_URL} \
+    && mkdir /usr/local/jdk && tar -zxvf openjdk.tar.gz -C /usr/local/jdk  --strip-components 1   \
+    && echo 'export JAVA_HOME=/usr/local/jdk' >> /etc/profile  \
+    && echo 'export PATH=$PATH:$JAVA_HOME/bin' >> /etc/profile \
+    && apt update && apt-get install -y --no-install-recommends --allow-unauthenticated git \
+    && apt -qq clean && rm -rf /var/lib/apt/lists/*  /var/cache/apt/*  /tmp/* /var/tmp/*
+
+
+# time zone settings
+RUN apt update && apt-get install -y --no-install-recommends --allow-unauthenticated tzdata \
+    && ln -fs /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && dpkg-reconfigure -f noninteractive tzdata \
+    && apt -qq clean && rm -rf /var/lib/apt/lists/*  /var/cache/apt/*
+
 
 
 
