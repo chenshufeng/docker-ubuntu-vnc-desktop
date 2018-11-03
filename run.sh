@@ -9,6 +9,7 @@ docker run --name newcc -d -p 3589:3389  -p 5902:5900 -p 6180:80\
     -e RESOLUTION=2560x1600 \
     -v /dev/shm:/dev/shm \
     --privileged \
+    -v /data/root_data:/home/zhouzhipeng \
     registry.mob.com/zhouzhipeng/docker-ubuntu-xrdp-lxqt
 
 docker logs -f newcc
