@@ -11,10 +11,12 @@ docker run --name newcc -d \
     -e USER=zhouzhipeng \
     -e PASSWORD=shutup \
     -e RESOLUTION=2560x1600 \
+    -e VNC_PASSWORD=mypassword \
     -v /dev/shm:/dev/shm \
     --privileged \
     -v /data/root_data:/home/zhouzhipeng \
-    registry.mob.com/zhouzhipeng/docker-ubuntu-xrdp-lxqt
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    zhouzhipeng/docker-ubuntu-xrdp-lxqt
 
 docker logs -f newcc
 # -v /data/root_data:/root \

@@ -35,16 +35,45 @@ fi
 USER=${USER:-root}
 HOME=/root
 if [ "$USER" != "root" ]; then
-    echo "* enable custom user: $USER"
-    useradd --create-home --shell /bin/bash --user-group --groups adm,sudo $USER
-    if [ -z "$PASSWORD" ]; then
-        echo "  set default password to \"ubuntu\""
-        PASSWORD=ubuntu
+
+
+
+    #create user if not exists
+    id $USER >& /dev/null
+    if [ $? -ne 0 ]
+    then
+
+        echo "* enable custom user: $USER"
+        useradd --create-home --shell /bin/bash --user-group --groups adm,sudo $USER
+        if [ -z "$PASSWORD" ]; then
+            echo "  set default password to \"ubuntu\""
+            PASSWORD=ubuntu
+        fi
+        HOME=/home/$USER
+        echo "$USER:$PASSWORD" | chpasswd
+        cp -r /root/{.gtkrc-2.0,.asoundrc} ${HOME}
+        [ -d "/dev/snd" ] && chgrp -R adm /dev/snd
+
+
+
     fi
-    HOME=/home/$USER
-    echo "$USER:$PASSWORD" | chpasswd
-    cp -r /root/{.gtkrc-2.0,.asoundrc} ${HOME}
-    [ -d "/dev/snd" ] && chgrp -R adm /dev/snd
+
+
+    # add  $USER to docker group
+    # 修改docker group id
+    docker_groupid=$(ls -ld /var/run/docker.sock  | awk '{print $4}')
+
+    if [ "$docker_groupid" -gt 0 ] 2>/dev/null ;then
+        # docker_groupid 是数字
+        groupmod -g $docker_groupid docker
+        usermod -aG docker $USER
+    else
+        usermod -aG $docker_groupid $USER
+    fi
+
+    # 兼容 docker server低版本
+    export DOCKER_API_VERSION=1.22
+
 fi
 sed -i "s|%USER%|$USER|" /etc/supervisor/conf.d/supervisord.conf
 sed -i "s|%HOME%|$HOME|" /etc/supervisor/conf.d/supervisord.conf
