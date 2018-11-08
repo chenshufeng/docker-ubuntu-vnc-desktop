@@ -16,8 +16,8 @@ docker run --name newcc -d \
     --privileged \
     -v /data/root_data:/home/zhouzhipeng \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    #zhouzhipeng/docker-ubuntu-xrdp-lxqt
-registry.cn-shanghai.aliyuncs.com
+    zhouzhipeng/docker-ubuntu-xrdp-lxqt
+#registry.cn-shanghai.aliyuncs.com
 docker logs -f newcc
 # -v /data/root_data:/root \
 
