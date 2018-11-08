@@ -16,7 +16,7 @@ RUN apt-get update \
         supervisor nginx sudo vim-tiny net-tools zenity xz-utils \
         dbus-x11 x11-utils alsa-utils \
         mesa-utils libgl1-mesa-dri \
-        lxqt openbox xvfb x11vnc \
+        lxqt openbox  xvfb x11vnc \
         gtk2-engines-murrine gnome-themes-standard gtk2-engines-pixbuf gtk2-engines-murrine arc-theme \
         firefox chromium-browser \
         ttf-ubuntu-font-family ttf-wqy-zenhei \
@@ -33,8 +33,8 @@ ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /bin/
 RUN chmod +x /bin/tini
 
 # ffmpeg
-RUN mkdir -p /usr/local/ffmpeg \
-    && curl -sSL --http1.1 https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz | tar xJvf - -C /usr/local/ffmpeg/ --strip 1
+#RUN mkdir -p /usr/local/ffmpeg \
+#    && curl -sSL --http1.1 https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz | tar xJvf - -C /usr/local/ffmpeg/ --strip 1
 
 # python library
 COPY image/usr/local/lib/web/backend/requirements.txt /tmp/
@@ -123,7 +123,7 @@ RUN  apt update && apt-get install -y --no-install-recommends --allow-unauthenti
 # install intellij idea
 
 # real url: https://download.jetbrains.8686c.com/idea/ideaIC-2018.2.5.tar.gz
-ARG IDEA_DOWNLOAD_URL=http://192.168.1.101:8080/ideaIC-2018.2.5.tar.gz
+ARG IDEA_DOWNLOAD_URL=http://192.168.111.103:8080/ideaIC-2018.2.5.tar.gz
 
 RUN cd /tmp \
     && curl -o ideaIC.tar.gz ${IDEA_DOWNLOAD_URL} \
@@ -134,7 +134,7 @@ RUN cd /tmp \
 # install jdk
 # real url: https://download.java.net/java/GA/jdk11/13/GPL/openjdk-11.0.1_linux-x64_bin.tar.gz
 # jdk8 : https://download.java.net/java/jdk8u192/archive/b04/binaries/jdk-8u192-ea-bin-b04-linux-arm64-vfp-hflt-01_aug_2018.tar.gz
-ARG JDK_DOWNLOAD_URL=http://192.168.1.101:8080/openjdk-11.0.1_linux-x64_bin.tar.gz
+ARG JDK_DOWNLOAD_URL=http://192.168.111.103:8080/openjdk-11.0.1_linux-x64_bin.tar.gz
 
 RUN cd /tmp && curl -o openjdk.tar.gz ${JDK_DOWNLOAD_URL} \
     && mkdir /usr/local/jdk && tar -zxvf openjdk.tar.gz -C /usr/local/jdk  --strip-components 1   \
