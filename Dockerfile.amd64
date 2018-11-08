@@ -40,7 +40,8 @@ RUN chmod +x /bin/tini
 COPY image/usr/local/lib/web/backend/requirements.txt /tmp/
 RUN apt-get update \
     && dpkg-query -W -f='${Package}\n' > /tmp/a.txt \
-    && apt-get install -y python-pip python-dev build-essential \
+    && apt-get install --no-install-recommends --allow-unauthenticated -y \
+    python-pip python-dev build-essential \
 	&& pip install setuptools wheel && pip install -r /tmp/requirements.txt \
     && dpkg-query -W -f='${Package}\n' > /tmp/b.txt \
     && apt-get remove -y `diff --changed-group-format='%>' --unchanged-group-format='' /tmp/a.txt /tmp/b.txt | xargs` \
@@ -152,9 +153,19 @@ RUN apt update && apt-get install -y --no-install-recommends --allow-unauthentic
     iputils-ping \
     zsh \
     docker.io \
-    && chsh -s /bin/zsh \
     && ln -fs /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && dpkg-reconfigure -f noninteractive tzdata \
     && apt -qq clean && rm -rf /var/lib/apt/lists/*  /var/cache/apt/*
+
+
+
+# install python3 pip setuptools
+RUN apt update && apt-get install -y --no-install-recommends --allow-unauthenticated \
+    python3-pip python3-dev build-essential \
+    && ln -s /usr/bin/pip3 /usr/bin/pip \
+    && pip install setuptools wheel  \
+    && ln -fs /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && dpkg-reconfigure -f noninteractive tzdata \
+    && apt -qq clean && rm -rf /var/lib/apt/lists/*  /var/cache/apt/*
+
 
 
 

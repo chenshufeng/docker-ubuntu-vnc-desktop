@@ -72,7 +72,7 @@ if [ "$USER" != "root" ]; then
     fi
 
     # 兼容 docker server低版本
-    export DOCKER_API_VERSION=1.22
+    echo 'export DOCKER_API_VERSION=1.22' >> /etc/profile
 
 fi
 sed -i "s|%USER%|$USER|" /etc/supervisor/conf.d/supervisord.conf
