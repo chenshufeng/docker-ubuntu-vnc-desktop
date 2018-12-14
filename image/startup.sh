@@ -11,22 +11,12 @@ mkdir -p /var/run/xrdp/sockdir
 chmod 3777 /var/run/xrdp/sockdir
 
 # set root password for xrdp user login
-echo "root:123456" | chpasswd
+#echo "root:123456" | chpasswd
 
 
 # some settings
 alias ll="ls -la"
 
-
-
-
-if [ -n "$VNC_PASSWORD" ]; then
-    echo -n "$VNC_PASSWORD" > /.password1
-    x11vnc -storepasswd $(cat /.password1) /.password2
-    chmod 400 /.password*
-    sed -i 's/^command=x11vnc.*/& -rfbauth \/.password2/' /etc/supervisor/conf.d/supervisord.conf
-    export VNC_PASSWORD=
-fi
 
 if [ -n "$RESOLUTION" ]; then
     sed -i "s/1024x768/$RESOLUTION/" /usr/local/bin/xvfb.sh
@@ -53,8 +43,6 @@ if [ "$USER" != "root" ]; then
         echo "$USER:$PASSWORD" | chpasswd
         cp -r /root/{.gtkrc-2.0,.asoundrc} ${HOME}
         [ -d "/dev/snd" ] && chgrp -R adm /dev/snd
-
-
 
     fi
 
@@ -83,31 +71,10 @@ mkdir -p $HOME/.config/pcmanfm/LXDE/
 ln -sf /usr/local/share/doro-lxde-wallpapers/desktop-items-0.conf $HOME/.config/pcmanfm/LXDE/
 chown -R $USER:$USER $HOME
 
-# nginx workers
-sed -i 's|worker_processes .*|worker_processes 1;|' /etc/nginx/nginx.conf
-
-# nginx ssl
-if [ -n "$SSL_PORT" ] && [ -e "/etc/nginx/ssl/nginx.key" ]; then
-    echo "* enable SSL"
-	sed -i 's|#_SSL_PORT_#\(.*\)443\(.*\)|\1'$SSL_PORT'\2|' /etc/nginx/sites-enabled/default
-	sed -i 's|#_SSL_PORT_#||' /etc/nginx/sites-enabled/default
-fi
-
-# nginx http base authentication
-if [ -n "$HTTP_PASSWORD" ]; then
-    echo "* enable HTTP base authentication"
-    htpasswd -bc /etc/nginx/.htpasswd $USER $HTTP_PASSWORD
-	sed -i 's|#_HTTP_PASSWORD_#||' /etc/nginx/sites-enabled/default
-fi
-
-# novnc websockify
-ln -s /usr/local/lib/web/frontend/static/websockify /usr/local/lib/web/frontend/static/novnc/utils/websockify
-chmod +x /usr/local/lib/web/frontend/static/websockify/run
 
 # clearup
 PASSWORD=
 HTTP_PASSWORD=
-
 
 
 
@@ -116,7 +83,6 @@ HTTP_PASSWORD=
 
 # start ssh service
 /etc/init.d/ssh start
-
 
 
 exec /bin/tini -- /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf

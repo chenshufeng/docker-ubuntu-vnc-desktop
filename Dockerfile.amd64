@@ -13,12 +13,11 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends software-properties-common curl apache2-utils \
     && apt-get update \
     && apt-get install -y --no-install-recommends --allow-unauthenticated \
-        supervisor nginx sudo vim-tiny net-tools zenity xz-utils \
+        supervisor  sudo vim-tiny net-tools zenity xz-utils \
         dbus-x11 x11-utils alsa-utils \
         mesa-utils libgl1-mesa-dri \
-        lxqt openbox  xvfb x11vnc \
+        lxqt openbox  xvfb  \
         gtk2-engines-murrine gnome-themes-standard gtk2-engines-pixbuf gtk2-engines-murrine arc-theme \
-        firefox chromium-browser \
         ttf-ubuntu-font-family ttf-wqy-zenhei \
     && add-apt-repository -r ppa:fcwu-tw/apps \
     && apt-get autoclean \
@@ -32,59 +31,6 @@ ARG TINI_VERSION=v0.18.0
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /bin/tini
 RUN chmod +x /bin/tini
 
-# ffmpeg
-#RUN mkdir -p /usr/local/ffmpeg \
-#    && curl -sSL --http1.1 https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz | tar xJvf - -C /usr/local/ffmpeg/ --strip 1
-
-# python library
-COPY image/usr/local/lib/web/backend/requirements.txt /tmp/
-RUN apt-get update \
-    && dpkg-query -W -f='${Package}\n' > /tmp/a.txt \
-    && apt-get install --no-install-recommends --allow-unauthenticated -y \
-    python-pip python-dev build-essential \
-	&& pip install setuptools wheel && pip install -r /tmp/requirements.txt \
-    && dpkg-query -W -f='${Package}\n' > /tmp/b.txt \
-    && apt-get remove -y `diff --changed-group-format='%>' --unchanged-group-format='' /tmp/a.txt /tmp/b.txt | xargs` \
-    && apt-get autoclean -y \
-    && apt-get autoremove -y \
-    && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /var/cache/apt/* /tmp/a.txt /tmp/b.txt
-
-
-################################################################################
-# builder
-################################################################################
-FROM ubuntu:16.04 as builder
-
-ARG localbuild
-RUN if [ "x$localbuild" != "x" ]; then sed -i 's#http://archive.ubuntu.com/#http://tw.archive.ubuntu.com/#' /etc/apt/sources.list; fi
-
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl ca-certificates
-
-# nodejs
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - \
-    && apt-get install -y nodejs
-
-# yarn
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
-    && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
-    && apt-get update \
-    && apt-get install -y yarn
-
-# build frontend
-COPY web /src/web
-RUN cd /src/web \
-    && yarn \
-    && npm run build
-
-
-################################################################################
-# merge
-################################################################################
-FROM system
-LABEL maintainer="fcwu.tw@gmail.com"
-
 
 
 # install xrdp
@@ -96,20 +42,6 @@ RUN apt-get update \
     && apt-get autoremove \
     && rm -rf /var/lib/apt/lists/*
 
-
-# install google chrome
-
-ARG CHROME_VERSION="google-chrome-stable"
-RUN  apt update && apt-get install -y --no-install-recommends --allow-unauthenticated  gpg-agent \
-  && curl https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-  && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
-  && apt-get update -qqy \
-  && apt-get install -y --no-install-recommends --allow-unauthenticated \
-    ${CHROME_VERSION:-google-chrome-stable} \
-  && rm /etc/apt/sources.list.d/google-chrome.list \
-  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
-
-
 # install openbox window manager
 
 RUN  apt update && apt-get install -y --no-install-recommends --allow-unauthenticated \
@@ -117,31 +49,6 @@ RUN  apt update && apt-get install -y --no-install-recommends --allow-unauthenti
     && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 
-
-
-
-
-# install intellij idea
-
-# real url: https://download.jetbrains.8686c.com/idea/ideaIC-2018.2.5.tar.gz
-ARG IDEA_DOWNLOAD_URL=http://192.168.111.103:8080/ideaIC-2018.2.5.tar.gz
-
-RUN cd /tmp \
-    && curl -o ideaIC.tar.gz ${IDEA_DOWNLOAD_URL} \
-    && mkdir /usr/local/ideaIC && tar -zxvf ideaIC.tar.gz -C /usr/local/ideaIC --strip-components 1 \
-    && rm -rf  /tmp/*
-
-
-# install jdk
-# real url: https://download.java.net/java/GA/jdk11/13/GPL/openjdk-11.0.1_linux-x64_bin.tar.gz
-# jdk8 : https://download.java.net/java/jdk8u192/archive/b04/binaries/jdk-8u192-ea-bin-b04-linux-arm64-vfp-hflt-01_aug_2018.tar.gz
-ARG JDK_DOWNLOAD_URL=http://192.168.111.103:8080/openjdk-11.0.1_linux-x64_bin.tar.gz
-
-RUN cd /tmp && curl -o openjdk.tar.gz ${JDK_DOWNLOAD_URL} \
-    && mkdir /usr/local/jdk && tar -zxvf openjdk.tar.gz -C /usr/local/jdk  --strip-components 1   \
-    && echo 'export JAVA_HOME=/usr/local/jdk' >> /etc/profile  \
-    && echo 'export PATH=$PATH:$JAVA_HOME/bin' >> /etc/profile \
-    && rm -rf  /tmp/*
 
 
 # time zone settings
@@ -163,22 +70,58 @@ RUN apt update && apt-get install -y --no-install-recommends --allow-unauthentic
     python3-pip python3-dev build-essential \
     && ln -s /usr/bin/pip3 /usr/bin/pip \
     && pip install setuptools wheel  \
-    && ln -fs /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && dpkg-reconfigure -f noninteractive tzdata \
     && apt -qq clean && rm -rf /var/lib/apt/lists/*  /var/cache/apt/*
 
 
+################################################################################
+# User Custom
+################################################################################
+FROM system
+LABEL maintainer="admin@zhouzhipeng.com"
+
+
+# install google chrome
+
+ARG CHROME_VERSION="google-chrome-stable"
+RUN  apt update && apt-get install -y --no-install-recommends --allow-unauthenticated  gpg-agent \
+  && curl https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+  && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
+  && apt-get update -qqy \
+  && apt-get install -y --no-install-recommends --allow-unauthenticated \
+    ${CHROME_VERSION:-google-chrome-stable} \
+  && rm /etc/apt/sources.list.d/google-chrome.list \
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 
 
+# install intellij idea
 
-COPY --from=builder /src/web/dist/ /usr/local/lib/web/frontend/
+# real url: https://download.jetbrains.8686c.com/idea/ideaIC-2018.2.5.tar.gz
+ARG IDEA_DOWNLOAD_URL=http://192.168.109.240:8080/ideaIC-2018.2.5.tar.gz
+
+RUN cd /tmp \
+    && curl -o ideaIC.tar.gz ${IDEA_DOWNLOAD_URL} \
+    && mkdir /usr/local/ideaIC && tar -zxvf ideaIC.tar.gz -C /usr/local/ideaIC --strip-components 1 \
+    && rm -rf  /tmp/*
+
+
+# install jdk
+# real url: https://download.java.net/java/GA/jdk11/13/GPL/openjdk-11.0.1_linux-x64_bin.tar.gz
+# jdk8 : https://download.java.net/java/jdk8u192/archive/b04/binaries/jdk-8u192-ea-bin-b04-linux-arm64-vfp-hflt-01_aug_2018.tar.gz
+ARG JDK_DOWNLOAD_URL=http://192.168.109.240:8080/openjdk-11.0.1_linux-x64_bin.tar.gz
+
+RUN cd /tmp && curl -o openjdk.tar.gz ${JDK_DOWNLOAD_URL} \
+    && mkdir /usr/local/jdk && tar -zxvf openjdk.tar.gz -C /usr/local/jdk  --strip-components 1   \
+    && echo 'export JAVA_HOME=/usr/local/jdk' >> /etc/profile  \
+    && echo 'export PATH=$PATH:$JAVA_HOME/bin' >> /etc/profile \
+    && rm -rf  /tmp/*
+
+
 COPY image /
 
-EXPOSE 80
 EXPOSE 3389
 
 WORKDIR /root
 ENV HOME=/root \
     SHELL=/bin/bash
-HEALTHCHECK --interval=30s --timeout=5s CMD curl --fail http://127.0.0.1:6079/api/health
 ENTRYPOINT ["/startup.sh"]

@@ -5,18 +5,15 @@ docker rm -f newcc
 
 docker run --name newcc -d \
     -p 3589:3389 \
-    -p 5902:5900 \
-    -p 6180:80 \
     -p 2222:22 \
     -e USER=zhouzhipeng \
     -e PASSWORD=shutup \
     -e RESOLUTION=2560x1600 \
-    -e VNC_PASSWORD=mypassword \
     -v /dev/shm:/dev/shm \
     --privileged \
     -v /data/root_data:/home/zhouzhipeng \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    zhouzhipeng/docker-ubuntu-xrdp-lxqt
+    zhouzhipeng/docker-ubuntu-xrdp-lxqt:test
 #registry.cn-shanghai.aliyuncs.com
 docker logs -f newcc
 # -v /data/root_data:/root \
